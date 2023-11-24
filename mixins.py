@@ -192,7 +192,6 @@ class PdfSummarizer:
     def excel_to_pdf(self, excel_file, pdf_path):
 
         df = pd.read_excel(excel_file, header=0)
-        print(df.columns)
         # Convert DataFrame to HTML and save it to a file
         df_html = df.to_html(index=False, header=True, classes='table table-striped', justify='center', escape=False, index_names=False)
 
