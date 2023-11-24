@@ -198,7 +198,6 @@ class PdfSummarizer:
         # Add a heading to the HTML file
         heading = "<h1 style='background-color: #d3d3d3; text-align: center; font-style: italic;'>Summary</h1>"
         html_content = f"{heading}\n{df_html}"
-        print(html_content)
 
         # Adjust the CSS styles to fill the entire page
         html_content = html_content.replace(
