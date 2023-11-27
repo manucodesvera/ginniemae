@@ -1,3 +1,5 @@
+import sys
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -67,22 +69,25 @@ def get_pdfs(year,month):
     total_pdf_links = []
     soup = get_soup(year, month)
     while btn_next:
-
-        table = soup.find("table", id="filterTable_s2")
-        pagination_content = soup.find("td",class_="ms-paging")
-        btn_next = pagination_content.find("img",alt="Next")
-        pdf_links = table.find_all("a")
-        total_pdf_links += [link.get("href") for link in pdf_links]
-        next_row_starts_from += len(pdf_links)
-        if btn_next:
-            parent_a_tag = btn_next.find_parent('a')
-            href_val = parent_a_tag.get("href")
-            formatted_str = href_val.split("__doPostBack(")[1].split(",")
-            _EVENTTARGET = formatted_str[0].replace("'","")
-            _VIEWSTATE = soup.find("input",id="__VIEWSTATE")['value']
-            _VIEWSTATEGENERATOR = soup.find("input",id="__VIEWSTATEGENERATOR")['value']
-            _EVENTVALIDATION = soup.find("input",id="__EVENTVALIDATION")['value']
-            soup = get_soup(year,month,_EVENTTARGET,_VIEWSTATE,_VIEWSTATEGENERATOR,_EVENTVALIDATION,next_row_starts_from)
+        try:
+            table = soup.find("table", id="filterTable_s2")
+            pagination_content = soup.find("td",class_="ms-paging")
+            btn_next = pagination_content.find("img",alt="Next")
+            pdf_links = table.find_all("a")
+            total_pdf_links += [link.get("href") for link in pdf_links]
+            next_row_starts_from += len(pdf_links)
+            if btn_next:
+                parent_a_tag = btn_next.find_parent('a')
+                href_val = parent_a_tag.get("href")
+                formatted_str = href_val.split("__doPostBack(")[1].split(",")
+                _EVENTTARGET = formatted_str[0].replace("'","")
+                _VIEWSTATE = soup.find("input",id="__VIEWSTATE")['value']
+                _VIEWSTATEGENERATOR = soup.find("input",id="__VIEWSTATEGENERATOR")['value']
+                _EVENTVALIDATION = soup.find("input",id="__EVENTVALIDATION")['value']
+                soup = get_soup(year,month,_EVENTTARGET,_VIEWSTATE,_VIEWSTATEGENERATOR,_EVENTVALIDATION,next_row_starts_from)
+        except AttributeError as e:
+            print("NO PDF FOUND")
+            return None
     return total_pdf_links
 
 

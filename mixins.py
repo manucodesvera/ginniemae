@@ -4,13 +4,10 @@ import subprocess
 import tempfile
 from itertools import groupby
 import requests
-import xlrd
-from bs4 import BeautifulSoup
 import xlwt
 import pandas as pd
 import pdfkit
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+
 
 
 class essential:
@@ -192,36 +189,37 @@ class PdfSummarizer:
     def excel_to_pdf(self, excel_file, pdf_path):
 
         df = pd.read_excel(excel_file, header=0)
-        # Convert DataFrame to HTML and save it to a file
-        df_html = df.to_html(index=False, header=True, classes='table table-striped', justify='center', escape=False, index_names=False)
+        df.dropna()
+        df_html = df.to_html(index=False, header=True, classes='table table-striped', justify='center')
 
-        # Add a heading to the HTML file
-        heading = "<h1 style='background-color: #d3d3d3; text-align: center; font-style: italic;'>Summary</h1>"
+        heading = "<h1 style='background-color: #d3d3d3; text-align: center;'>Balance Summary</h1>"
         html_content = f"{heading}\n{df_html}"
 
-        # Adjust the CSS styles to fill the entire page
         html_content = html_content.replace(
             "<table",
-            "<table style='width: 80%; border-collapse: collapse; border: 1px solid black; text-align: center;  margin: auto;'"
+            "<table style='width: 80%;  border-collapse: collapse; border: 1px solid black; text-align: center;  margin: auto;'"
         )
-        html_content = html_content.replace("<th", "<th style='font-size: 40px; font-weight: bold; background-color: #d3d3d3; font-family: 'Times New Roman';")
-        html_content = html_content.replace("<td", "<td style='font-size: 30px;'")
+        html_content = re.sub(
+            r"<th\b",
+            r"<th style='font-size: 20px; font-weight: bold; background-color: #d3d3d3; font-family: \"Times New Roman\";'",
+            html_content
+        )
+
+        html_content = html_content.replace("<td", "<td style='font-size: 16px;'")
 
 
-        # Save the modified HTML content back to the file
         with open("file.html", "w") as file:
             file.write(html_content)
 
-        # Convert HTML to PDF using pdfkit with custom options
         options = {
-            "page-size": "A4",  # Set the paper size (A4, A3, etc.)
+            "page-size": "A4",
             "margin-top": "0mm",
             "margin-right": "0mm",
             "margin-bottom": "0mm",
             "margin-left": "0mm",
         }
 
-        pdfkit.from_file("file.html", pdf_path, options=options)  # to pdf
+        pdfkit.from_file("file.html", pdf_path, options=options)
         os.remove(excel_file)
         os.remove("file.html")
 
