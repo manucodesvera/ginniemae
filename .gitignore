@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local development settings
+.env
+
+# Database
+db.sqlite3
+
+# Static files
+/static/
+
+# Media files
+/media/
+
+# Virtual environment
+venv/
+venv3/
+env/
+*.pyc
+*.pyo
+__pycache__/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# PyCharm files
+.idea/
+
+# Visual Studio Code files
+.vscode/
+
+# SQLite database file
+*.sqlite3
+
+# Django migration files
+/migrations/
+

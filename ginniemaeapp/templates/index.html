@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'base.html' %}
+    <link href="{% static 'css/essential.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/spinner.css' %}" rel="stylesheet" />
+    <title style="font-style: italic; font-weight: lighter; color: white;" >Ginniemae Scrapper Tool</title>
+</head>
+<body>
+<div class="container">
+    <form id="inputForm" method="post">
+        {% csrf_token %}
+        <div class="row page-range-sel-container">
+            <div class="col-sm-4">
+                <select name="month" class="form-select" aria-label="Default select example" required>
+                      <option value="January" selected>January</option>
+                      <option value="February">February</option>
+                      <option value="March">March</option>
+                      <option value="April">April</option>
+                      <option value="May">May</option>
+                      <option value="June">June</option>
+                      <option value="july">july</option>
+                      <option value="August">August</option>
+                      <option value="September">September</option>
+                      <option value="October">October</option>
+                      <option value="November">November</option>
+                      <option value="December">December</option>
+
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <input type="number" id="year" name="year" class="input-field" placeholder="Year" required>
+            </div>
+            <div class="col-sm-4">
+                <select name="type" class="form-select" aria-label="Default select example" required>
+                  <option value="Excel" selected>Excel</option>
+                  <option value="Pdf">Pdf</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit">Search</button>
+        <div id="loader" class="loader"></div>
+    </form>
+
+</div>
+</body>
+</html>
+<script>
+$(document).ready(function() {
+    $("#inputForm").submit(function(event) {  // Note: Include the event parameter
+        event.preventDefault();
+
+        // Fetch CSRF token from the page
+        var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+        var formData = $("#inputForm").serialize();
+
+        $("#loader").show();
+        $.ajax({
+            type: "POST",
+            data: formData,
+            dataType: "json",
+            url: "/",
+            headers: {
+                "X-CSRFToken": csrf_token
+            },
+            success: function(response) {
+                if (response.file_path) {
+                    downloadFile(response.file_path);
+                    $("#loader").hide();
+                    location.reload()
+                } else if (response.error) {
+                    alert("Something went wrong!");
+                    $("#loader").hide();
+                    location.reload()
+                }
+
+            },
+            error: function(error) {
+                $("#loader").hide();
+                alert("Error: " + error.responseText);
+                location.reload()
+            }
+        });
+    });
+});
+function downloadFile(filePath) {
+        var a = $("<a />");
+        a.attr("download", filePath);
+        a.attr("href", filePath);
+        $("body").append(a);
+        a[0].click();
+        $("body").remove(a);
+    }
+</script>
