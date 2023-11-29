@@ -9,6 +9,18 @@
     <link href="{% static 'css/essential.css' %}" rel="stylesheet" />
     <link href="{% static 'css/spinner.css' %}" rel="stylesheet" />
     <title style="font-style: italic; font-weight: lighter; color: white;" >Ginniemae Scrapper Tool</title>
+<style>
+    .info-content{
+        display:none;
+        margin-top:20px;
+        width:100%;
+
+    }
+    .p-info{
+        text-align:center;
+    }
+
+</style>
 </head>
 <body>
 <div class="container">
@@ -46,7 +58,11 @@
         <div id="loader" class="loader"></div>
     </form>
 
+
 </div>
+<div class="info-content">
+<p class="p-info"></p>
+    </div>
 </body>
 </html>
 <script>
@@ -58,7 +74,9 @@ $(document).ready(function() {
         var csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
         var formData = $("#inputForm").serialize();
 
-        $("#loader").show();
+        // $("#loader").show();
+        $(".info-content").show();
+        $(".p-info").html("Processing... File will be downloaded once complete...");
         $.ajax({
             type: "POST",
             data: formData,
@@ -68,11 +86,14 @@ $(document).ready(function() {
                 "X-CSRFToken": csrf_token
             },
             success: function(response) {
+
                 if (response.file_path) {
+
                     downloadFile(response.file_path);
-                    $("#loader").hide();
-                    location.reload()
+                   // $("#loader").hide();
+                    // location.reload()
                 } else if (response.error) {
+                    $(".info-content").hide();
                     alert("Something went wrong!");
                     $("#loader").hide();
                     location.reload()
@@ -91,8 +112,10 @@ function downloadFile(filePath) {
         var a = $("<a />");
         a.attr("download", filePath);
         a.attr("href", filePath);
+        a.html("here.");
         $("body").append(a);
-        a[0].click();
-        $("body").remove(a);
+       a[0].click();
+       $(".p-info").html("Process complete. If not downloaded automatically, click ");
+       $(".p-info").append(a);
     }
 </script>
