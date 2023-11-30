@@ -51,26 +51,28 @@ class essential:
         else:
             print(f"Failed to download the PDF. Status code: {response.status_code}")
 
-    def text_value_extracter(self,text_file):
+    def text_value_extracter(self, text_file):
 
         filtered_data = []
         filter_name = []
         filter_remic = []
 
-
-        content = open(text_file)
+        content = open(text_file, encoding='utf-8')
         content = content.readlines()
 
         for index in range(len(content)):
 
             transaction_details1 = re.compile(
-                r'(?P<class_of_remic_securities>[A-Z()\d]+?)\s+\.\ ..*\s+(?P<orginal_principle_balance>\$?\s*[\d,]+)\s+(?P<intrest_rate>[\d,()\.%]+?[()\d]?)\s+(?P<principle_type>[A-Z()/\w]+?)\s+(?P<intrest_type>[A-Z()/\w]+)\s+(?P<cusip_number>\w*)\s+(?P<distribution_date>\w*\s+\d{4})\s*'
+                r'(?P<class_of_remic_securities>[A-Z()\d]+?)\s+\.\ ..*\s+(?P<orginal_principle_balance>\$?\s*[\d,]+)\s+(?P<intrest_rate>[\d,()\.%]+?[()\d]?)\s+(?P<principle_type>[A-Z()/\w ]+?)\s+(?P<intrest_type>[A-Z()/\w]+)\s+(?P<cusip_number>\w*)\s+(?P<distribution_date>\w*\s+\d{4})\s*'
             )
             transaction_details2 = re.compile(
                 r'(?P<class_of_remic_securities>[A-Z()\d]+?)\s+\.\ ..*\s+(?P<orginal_principle_balance>\$?\s*[\d,]+)\s+(?P<intrest_rate>[()\d]+)\s+(?P<principle_type>[A-Z()/\w]+?)\s+(?P<intrest_type>[A-Z/\w]+?)\s+(?P<cusip_number>\w*)\s+(?P<distribution_date>\w*\s+\d{4})\s*'
             )
             transaction_details3 = re.compile(
                 r'(?P<class_of_remic_securities>[A-Z()\d]+?)\s+\.\ ..*\s+(?P<orginal_principle_balance>\$?\s+\d*\s*[\d,]+)\s+(?P<intrest_rate>[()\d]+)\s+(?P<principle_type>[A-Z()/\w]+?)\s+(?P<intrest_type>[A-Z/\w]+?)\s+(?P<cusip_number>\w*)\s+(?P<distribution_date>\w*\s+\d{4})\s*'
+            )
+            transaction_details4 = re.compile(
+                r'(?P<orginal_principle_balance>\$?\s*[\d,]+)\s+(?P<intrest_rate>[\d,()\.%]+?[()\d]?)\s+(?P<principle_type>[A-Z()/\w ]+?)\s+(?P<intrest_type>[A-Z()/\w]+)\s+(?P<cusip_number>\w*)\s+(?P<distribution_date>\w*\s+\d{4})\s*'
             )
             sponsor_name = re.compile(
                 r'^Sponsor:(?P<sponsor_name>\s+[\w \. \s \& \,]+)\s*'
@@ -84,12 +86,26 @@ class essential:
             match3 = re.search(sponsor_name, txt)
             match4 = re.search(remic_trust, txt)
             match5 = re.search(transaction_details3, txt)
+            match6 = re.search(transaction_details4, txt)
             if match5:
                 filtered_data.append(match5.groupdict())
             elif match1:
                 filtered_data.append(match1.groupdict())
             elif match2:
                 filtered_data.append(match2.groupdict())
+            elif match6:
+                count = 1
+                while True:
+                    if content[index - count].strip() != "":
+                        break
+                    count += 1
+                new_pattern = re.compile(
+                    r'(?P<class_of_remic_securities>[A-Z()\d]+?)\s+\.\ ..*\s+'
+                )
+                new_match = re.search(new_pattern, content[index - count])
+                if new_match:
+                    new_dict = {**new_match.groupdict(), **match6.groupdict()}
+                    filtered_data.append(new_dict)
             elif match3:
                 filter_name.append(match3.groupdict())
             elif match4:
